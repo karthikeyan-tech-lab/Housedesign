@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "tsx --test tests/*.test.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:deployment": "npm run build && playwright test --config playwright.deployment.config.ts"
   },
   "dependencies": {
     "jspdf": "^4.2.1",

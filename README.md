@@ -11,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-Vite serves the app at the `/Housedesign/` base path. For a production build:
+Vite serves the development app at `/`. Production assets use relative URLs so the same build works at the Vercel domain root and the GitHub Pages `/Housedesign/` subpath. For a production build:
 
 ```sh
 npm run build
@@ -65,13 +65,18 @@ The interactive **3D module is deferred until the 2D editor is approved**, as re
 npm test          # geometry, compass, layout, area, connectivity and import tests
 npm run build    # strict TypeScript check and production build
 npm run test:e2e # mobile Chromium interactions and browser export/storage tests
+npm run test:deployment # build and test production assets at root and repo subpath
 ```
 
 The Playwright config uses the system Chromium at `/usr/bin/chromium`. Override `CHROMIUM_PATH` if installed elsewhere. On another machine, install Chromium or use Playwright's browser (`npx playwright install chromium`, then `CHROMIUM_PATH=bundled npm run test:e2e`). Browser tests use a Pixel 7 touch viewport, real CDP touch events, and portrait/landscape/desktop sizes. They cover moving Kitchen to East, resizing Bedroom, adding Pooja, moving stairs, opening repositioning, overlap/outside warnings, undo/redo, saving/reloading and JSON/PNG/PDF export. These are emulated mobile checks; physical Android testing remains recommended.
 
 ## Deploy to GitHub Pages
 
-The workflow in `.github/workflows/deploy.yml` tests and builds on pull requests. Pushes to `main` (or manual runs on `main`) additionally deploy `dist` using GitHub Pages Actions. In repository **Settings → Pages**, choose **GitHub Actions** as the source. No credentials are bundled in the app. Vite's base is `/Housedesign/`; change it if deploying to a different repository name or custom root domain. Deployment is configured here but has not been published from this workspace.
+The workflow in `.github/workflows/deploy.yml` tests and builds on pull requests. Pushes to `main` (or manual runs on `main`) additionally deploy `dist` using GitHub Pages Actions. In repository **Settings → Pages**, choose **GitHub Actions** as the source. No credentials are bundled in the app. Relative asset paths support the repository subpath without a host-specific build.
+
+## Deploy to Vercel
+
+Import the GitHub repository into Vercel and use the Vite framework preset. `vercel.json` specifies `npm run build` and the `dist` output directory. Serve the output at the domain root; no `/Housedesign/` prefix or asset rewrite is required. A connected Vercel project can redeploy when `main` is pushed. The production hosting regression tests serve the same `dist` files at both `/` and `/Housedesign/`, checking application startup, styles, asset responses and lazy-loaded PDF export.
 
 ## Code map
 
@@ -82,4 +87,4 @@ The workflow in `.github/workflows/deploy.yml` tests and builds on pull requests
 - `src/exports.ts`: portable JSON download and SVG-to-PNG/PDF export (PDF loaded on demand).
 - `tests/`: domain and browser regression tests.
 
-Future cloud tasks should use the existing isolated checkout rather than creating a worktree. Install with `npm ci`, start with `npm run dev`, then verify the `/Housedesign/` route and run the checks above after changes.
+Future cloud tasks should use the existing isolated checkout rather than creating a worktree. Install with `npm ci`, start with `npm run dev`, then verify the `/` route and run the checks above after changes.
